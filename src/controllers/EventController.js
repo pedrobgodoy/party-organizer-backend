@@ -1,6 +1,6 @@
 const Event = require('../models/Event.js');
 
-const parseDate = require('../utils/parseDate.js');
+const { parseDate } = require('../utils/Utils.js');
 
 module.exports = {
     async index(request, response) {
