@@ -9,6 +9,11 @@ const EventSchema = new mongoose.Schema({
     location: {
         type: PointSchema,
         index: '2dsphere'
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     }
 });
 

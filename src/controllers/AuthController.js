@@ -39,7 +39,7 @@ module.exports = {
         });
     },
     async register(req, res){
-        const { name, email, password } = req.body;
+        const { name, email, password, adm } = req.body;
 
         const emailLower = email.toLowerCase();
         const nameFormated = name.trim();
@@ -67,10 +67,16 @@ module.exports = {
             return res.json({response: "Erro ao criar usuário!"});    
         }
 
-        const token = jwt.sign({name: user.name, emailLower: user.email}, process.env.JWT_SECRET, {
+        const token = jwt.sign({name: user.name, email: user.email}, process.env.JWT_SECRET, {
             expiresIn: '1 day'
         });
 
-        return res.json({user, token});
+        const returnUser = {
+            name: user.name,
+            email: user.email,
+            location: user.location
+        }
+
+        return res.json({returnUser, token});
     }
 }

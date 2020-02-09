@@ -6,6 +6,8 @@ dotenv.config();
 const User = require('../models/User.js');
 
 module.exports = async function auth(req, res, next){
+    // TODO Validar se existe token
+
     const [tokenType, token] = req.headers.authorization.split(' ');
 
     if(tokenType !== "Bearer"){
@@ -16,21 +18,16 @@ module.exports = async function auth(req, res, next){
         return res.json({response: "Token não econtrado!"});
     }
 
-    let email = "";
-    
-    jwt.verify(token, process.env.JWT_SECRET, (err, value)  => {
-        if(err){
-            if(err.name === "JsonWebTokenError"){
-                return res.json({response: "Token inválido!"});
-            }
-        }
-        if(value){
-            email = value;
-        }
-    })
+    const jwtCotent = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = User.findOne({email});
+    const user = await User.findOne({email: jwtCotent.email});
     
+    if(!user){
+        return res.json({response: "Usuário Logado Inválido!"});
+    }
+
+    console.log(user);
+
     req.auth = user;
     next();
 }
