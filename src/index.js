@@ -15,10 +15,8 @@ mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cl
     useCreateIndex: true
 });
 
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 app.use(routes);
 
 app.listen(process.env.PORT);
-
-//teste
