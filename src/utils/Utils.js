@@ -7,7 +7,10 @@ module.exports = {
         return false;
     },
     parseHeaderAuthorization(headers){
-        const [, encodedData] = headers.authorization.split(' ');
+        const authorization = headers.authorization;
+        if(!authorization) throw new Error("Cabeçalho vazio");
+
+        const [, encodedData] = authorization.split(' ');
         return new Buffer.from(encodedData, 'base64').toString().split(':');
     },
     parseDate(dateString){

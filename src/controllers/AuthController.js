@@ -9,7 +9,11 @@ const {parseHeaderAuthorization, validateEmail} = require('../utils/Utils.js');
 
 module.exports = {
     async login(req, res){
-        const [email, password] = parseHeaderAuthorization(req.headers);
+        try{
+            const [email, password] = parseHeaderAuthorization(req.headers);
+        } catch(e) {
+            return res.status(400).json({ response: "Dados inválidos!" });
+        }
 
         const emailLower = email.toLowerCase();
 
