@@ -26,15 +26,16 @@ routes.get('/evento', EventCotroller.index);
 routes.put('/evento', EventCotroller.update);
 routes.delete('/evento', EventCotroller.delete);
 
+routes.get('/user/:id', UserController.index);
 routes.get('/user', UserController.index);
+
 routes.put('/user', UserController.update);
 routes.delete('/user', UserController.delete);
 
+routes.put('/adm/:id', AdmController.update);
+
 // All the routes below, the user will need to have adm rights
-routes.use(AdmMiddleware);
 
-routes.put('/adm', AdmController.update);
-
-routes.get('/users', UsersController.index);
+routes.get('/users', AdmMiddleware,  UsersController.index);
 
 module.exports = routes;

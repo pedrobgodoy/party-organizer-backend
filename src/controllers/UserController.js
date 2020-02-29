@@ -2,9 +2,14 @@ const User = require('../models/User.js');
 
 module.exports = {
     async index(req, res){
-        const { id } = req.query;
+        const paramId = req.params.id;
+        let searchId = req.auth.id;
 
-        const user = await User.findById(id);
+        if(paramId){
+            searchId = paramId;
+        }
+
+        const user = await User.findById(searchId);
         
         if(user){
             return res.json(user);

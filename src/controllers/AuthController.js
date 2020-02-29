@@ -9,8 +9,11 @@ const {parseHeaderAuthorization, validateEmail} = require('../utils/Utils.js');
 
 module.exports = {
     async login(req, res){
+        let email = "";
+        let password = "";
+
         try{
-            const [email, password] = parseHeaderAuthorization(req.headers);
+            [email, password] = parseHeaderAuthorization(req.headers);
         } catch(e) {
             return res.status(400).json({ response: "Dados inválidos!" });
         }
@@ -56,6 +59,10 @@ module.exports = {
 
         if(user){
             return res.json({response: "Usuário já existe!"});
+        }
+
+        if(password.length <= 3){
+            return res.status(400).json({response: "A senha deve conter mais de 3!"});
         }
 
         const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_SALT_ROUNDS)).catch(err => console.log(err));

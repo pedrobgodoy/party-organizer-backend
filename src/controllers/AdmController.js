@@ -2,19 +2,14 @@ const User = require('../models/User.js');
 
 module.exports = {
     async update(req, res){
-        const {_id, name, email} = req.body;
+        const id = req.params.id;
 
-        const user = await User.findById(_id);
+        const user = await User.findById(id);
 
-        if(!user){
-            return res.json({response: "Usuário não encontrado!"});
-        }
-
-        user.name = name;
-        user.email = email;
+        user.adm = true;
 
         user.save();
 
-        return res.json(user);
+        return res.status(200).json({response: "Permissão consedida com sucesso!"});
     }
 }

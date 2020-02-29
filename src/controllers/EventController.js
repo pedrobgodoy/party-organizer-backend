@@ -13,14 +13,12 @@ module.exports = {
         return res.json(events);
     },
     async store(req, res){
-        const { name, description, date, duration, latitude, longitude, createdBy } = req.body;
+        const { name, description, date, duration, latitude, longitude, createdBy = req.auth.id } = req.body;
 
         const location = {
             type: 'Point',
             coordinates: [longitude, latitude]
         };
-
-        console.log(location);
 
         const eventDate = parseDate(date);
 
@@ -29,7 +27,7 @@ module.exports = {
             description,
             date: eventDate,
             duration,
-            location,
+            location: latitude && longitude ? location : null,
             createdBy
         });
 
