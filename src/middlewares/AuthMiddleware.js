@@ -23,18 +23,19 @@ module.exports = async function auth(req, res, next){
         return res.status(400).json({response: "Token não econtrado!"});
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, async (jwtCotent) => {
-        if(jwtCotent.name != null && jwtCotent.name == "JsonWebTokenError"){
-            return res.status(400).json({response: "Token inválido!"});
+    jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+        if (err)
+            return res.status(500).json({response: "Erro na autenticação!"});
+
+        const user = await User.findOne({email: decoded.email});
+
+        if(!user){
+            return res.status(400).json({response: "Usuário Logado Inválido!"});
         }
+    
+        req.auth = user;
+        next();
     });
 
-    const user = await User.findOne({email: jwtCotent.email});
-
-    if(!user){
-        return res.status(400).json({response: "Usuário Logado Inválido!"});
-    }
-
-    req.auth = user;
-    next();
+    return res.status(500).json({response: "Erro interno na válidação de segurança"});
 }
