@@ -15,7 +15,7 @@ module.exports = {
         try{
             [email, password] = parseHeaderAuthorization(req.headers);
         } catch(e) {
-            return res.status(400).json({ response: "Dados inválidos!" });
+            return res.status(400).json({status: "error", message: "Dados inválidos!" });
         }
 
         const emailLower = email.toLowerCase();
@@ -23,13 +23,13 @@ module.exports = {
         const user = await User.findOne({ email: emailLower }).select(['password', 'name', 'email', 'location']);
         
         if(!user){
-            return res.json({ response: "Usuário não encontrado!" });
+            return res.json({ status: "error", message: "Usuário não encontrado!" });
         }
 
         const validPassword = await bcrypt.compare(password, user.password);
 
         if(!validPassword){
-            return res.json({ reponse: "Senha inválida!" });
+            return res.json({ status: "error", message: "Senha incorreta!" });
         }
 
         const token = jwt.sign({name: user.name, email: user.email}, process.env.JWT_SECRET, {
@@ -37,6 +37,7 @@ module.exports = {
         });
 
         return res.json({
+            status: "success",
             user: {
                 name: user.name, 
                 email: user.email, 
@@ -46,23 +47,35 @@ module.exports = {
         });
     },
     async register(req, res){
-        const { name, email, password, adm } = req.body;
+        const { name, email, password } = req.body;
+
+        if(!email){
+            return res.status(200).json({status: "error", message: "É necessário um email para prosseguir!"});
+        }
+
+        if(!password){
+            return res.status(200).json({status: "error", message: "É necessário uma senha para prosseguir!"});
+        }
+
+        if(!name){
+            return res.status(200).json({status: "error", message: "É necessário um nome para prosseguir!"});
+        }
 
         const emailLower = email.toLowerCase();
         const nameFormated = name.trim();
 
         if(!validateEmail(emailLower)){
-            return res.json({response: "Email inválido!"});
+            return res.status(200).json({status: "error", message: "Email inválido!"});
         }
 
         let user = await User.findOne({email: emailLower});
 
         if(user){
-            return res.json({response: "Usuário já existe!"});
+            return res.status(200).json({status: "error", message: "Usuário já existe!"});
         }
 
         if(password.length <= 3){
-            return res.status(400).json({response: "A senha deve conter mais de 3!"});
+            return res.status(200).json({status: "error", message: "A senha deve conter mais de 3!"});
         }
 
         const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_SALT_ROUNDS)).catch(err => console.log(err));
@@ -75,7 +88,7 @@ module.exports = {
         })
 
         if(!user){
-            return res.json({response: "Erro ao criar usuário!"});    
+            return res.status(200).json({status: "error", message: "Erro ao criar usuário!"});    
         }
 
         const token = jwt.sign({name: user.name, email: user.email}, process.env.JWT_SECRET, {
@@ -88,6 +101,6 @@ module.exports = {
             location: user.location
         }
 
-        return res.json({returnUser, token});
+        return res.status(200).json({status: "success", returnUser, token});
     }
 }
