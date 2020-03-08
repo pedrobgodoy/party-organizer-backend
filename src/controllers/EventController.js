@@ -7,13 +7,15 @@ module.exports = {
         const events = await Event.find({createdBy: req.auth._id});
 
         if(events.length === 0){
-            return res.status(404).json({response: "Nenhum evento encontrado!"});
+            return res.status(200).json({status:"success", message: "Nenhum evento encontrado!"});
         }
         
-        return res.json(events);
+        return res.status(200).json({status:"success", events});
     },
     async store(req, res){
-        const { name, description, date, duration, latitude, longitude, createdBy = req.auth.id } = req.body;
+        const { name, description, date, duration, latitude, longitude } = req.body;
+
+        const createdBy = req.auth.id;
 
         const location = {
             type: 'Point',
@@ -21,6 +23,10 @@ module.exports = {
         };
 
         const eventDate = parseDate(date);
+
+        if(!eventDate){
+            return res.status(200).json({status: "error", message: "Data inválida!"});
+        }
 
         const event = await Event.create({
             name,
@@ -31,7 +37,11 @@ module.exports = {
             createdBy
         });
 
-        return res.json(event);
+        if(!event){
+            return res.status(200).json({status: "error", message: "Erro ao criar evento!"});
+        }
+
+        return res.status(200).json({status: "success", event});
     },
     async update(req, res){
         const { name, description, date, duration, latitude, longitude, _id } = req.body;

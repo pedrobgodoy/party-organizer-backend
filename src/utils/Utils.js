@@ -14,7 +14,13 @@ module.exports = {
         return new Buffer.from(encodedData, 'base64').toString().split(':');
     },
     parseDate(dateString){
-        const dateArray = dateString.split('/');
-        return new Date(dateArray[2] + '-' + dateArray[1] + '-' + dateArray[0] + 'T00:00');
+        if(!dateString)
+            return null;
+
+        if(dateString.toString().indexOf('/') > -1){
+            const dateArray = dateString.split('/');
+            return new Date(dateArray[2] + '-' + dateArray[1] + '-' + dateArray[0] + 'T00:00');
+        }
+        return new Date(dateString);
     }
 }
