@@ -1,32 +1,42 @@
 const User = require('../models/User.js');
 
 module.exports = {
-    async index(request, response){
-        const { id } = request.query;
+    async index(req, res){
+        const paramId = req.params.id;
+        let searchId = req.auth.id;
 
-        const user = await User.findById(id);
+        if(paramId){
+            searchId = paramId;
+        }
+
+        const user = await User.findById(searchId);
         
         if(user){
-            return response.json(user);
+            return res.json(user);
         }else{
-            return response.json({message: "Usuário não encontrado!"});
+            return res.json({response: "Usuário não encontrado!"});
         }
     },
-    async store(request, response){
-        const { name, email, password } = request.body;
+    async update(req, res){
+        const {name, latitude, longitude} = req.body;
 
-        let user = await User.findOne({email});
+        const user = await User.findById(req.auth._id);
 
-        if(!user){
-            user = await User.create({
-                name,
-                email,
-                password
-            })
-
-            return response.json(user);
-        }else{  
-            return response.json({message: "Usuário já existe!"});
+        const location = {
+            type: 'Point',
+            coordinates: [longitude, latitude]
         }
+
+        user.name = name;
+        if(latitude && longitude) user.location = location;
+        
+        user.save();
+
+        return res.json(user);
+    },
+    async delete(req, res){
+        const deletedUser = await User.findByIdAndDelete(req.auth._id).select(['name', 'email', 'location']);
+
+        return res.json(deletedUser);
     }
 }
